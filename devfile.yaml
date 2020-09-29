@@ -1,0 +1,59 @@
+metadata:
+  generateName: woopra-plugin-
+projects:
+  - name: che-workspace-telemetry-woopra-plugin
+    source:
+      location: >-
+        https://github.com/redhat-developer/che-workspace-telemetry-woopra-plugin.git
+      type: git
+      branch: master
+components:
+  - mountSources: true
+    endpoints:
+      - name: 4168/tcp
+        port: 4168
+    memoryLimit: 2048Mi
+    type: dockerimage
+    volumes:
+      - name: m2
+        containerPath: /home/user/.m2
+    alias: maven
+    image: 'quay.io/eclipse/che-java8-maven:nightly'
+    env:
+      - value: '--max_old_space_size=1500'
+        name: NODE_OPTIONS
+      - value: '4168'
+        name: CHE_WORKSPACE_TELEMETRY_BACKEND_PORT
+      - value: >-
+          -XX:MaxRAMPercentage=50.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10
+          -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4
+          -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true
+          -Xms20m -Djava.security.egd=file:/dev/./urandom -Duser.home=/home/user
+        name: JAVA_OPTS
+      - value: $(JAVA_OPTS)
+        name: MAVEN_OPTS
+      - value: ''
+        name: CHE_FABRIC8_ANALYTICS_SEGMENT_WRITE_KEY
+      - value: ''
+        name: CHE_FABRIC8_ANALYTICS_WOOPRA_DOMAIN
+  - id: eclipse/che-theia/next
+    memoryLimit: 1Gi
+    type: cheEditor
+    alias: theia-editor
+apiVersion: 1.0.0
+commands:
+  - name: BUILD woopra plugin
+    actions:
+      - workdir: /projects/che-workspace-telemetry-woopra-plugin
+        type: exec
+        command: mvn --settings settings.xml package
+        component: maven
+  - name: RUN woopra plugin
+    actions:
+      - workdir: /projects/che-workspace-telemetry-woopra-plugin
+        type: exec
+        command: >
+          mvn --settings settings.xml quarkus:dev
+          -Dquarkus.http.port="${CHE_WORKSPACE_TELEMETRY_BACKEND_PORT}"
+        component: maven
+
