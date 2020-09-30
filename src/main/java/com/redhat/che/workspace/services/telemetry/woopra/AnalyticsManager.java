@@ -20,6 +20,7 @@ import com.google.common.cache.RemovalNotification;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.redhat.che.workspace.services.telemetry.woopra.exception.WoopraCredentialException;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.TrackMessage;
 import org.eclipse.che.api.core.rest.HttpJsonRequestFactory;
@@ -68,8 +69,8 @@ public class AnalyticsManager extends AbstractAnalyticsManager {
 
     String segmentWriteKey;
     String woopraDomain;
+    String segmentWriteKeyEndpoint;
     String woopraDomainEndpoint;
-    String woopraWriteKeyEndpoint;
 
     protected ScheduledExecutorService checkActivityExecutor = Executors
             .newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("Analytics Activity Checker").build());
@@ -84,18 +85,34 @@ public class AnalyticsManager extends AbstractAnalyticsManager {
     @VisibleForTesting
     HttpUrlConnectionProvider httpUrlConnectionProvider = null;
 
-    public AnalyticsManager(String defaultSegmentWriteKey, String defaultWoopraDomain, String woopraDomainEndpoint,
-                            String woopraWriteKeyEndpoint, String apiEndpoint, String workspaceId, String machineToken,
-                            HttpJsonRequestFactory requestFactory, AnalyticsProvider analyticsProvider,
+    public AnalyticsManager(String defaultSegmentWriteKey,
+                            String defaultWoopraDomain,
+                            String segmentWriteKeyEndpoint, String woopraDomainEndpoint,
+                            String apiEndpoint,
+                            String workspaceId,
+                            String machineToken,
+                            HttpJsonRequestFactory requestFactory,
+                            AnalyticsProvider analyticsProvider,
                             HttpUrlConnectionProvider httpUrlConnectionProvider) {
         super(apiEndpoint, workspaceId, machineToken, requestFactory);
         this.woopraDomainEndpoint = woopraDomainEndpoint;
-        this.woopraWriteKeyEndpoint = woopraWriteKeyEndpoint;
+        this.segmentWriteKeyEndpoint = segmentWriteKeyEndpoint;
         segmentWriteKey = defaultSegmentWriteKey;
         woopraDomain = defaultWoopraDomain;
+
+        if (segmentWriteKey == null && segmentWriteKeyEndpoint == null) {
+            throw new WoopraCredentialException("Requires a segment write key or the URL of an endpoint that will return the segment write key.  " +
+                    " Set either SEGMENT_WRITE_KEY or SEGMENT_WRITE_KEY_ENDPOINT");
+        }
+
+        if (woopraDomain == null && woopraDomainEndpoint == null) {
+            throw new WoopraCredentialException("Requires a woopra domain or the URL of an endpoint that will return the woopra domain." +
+                    " Set either WOOPRA_DOMAIN or WOOPRA_DOMAIN_ENDPOINT");
+        }
+
         try {
             if (segmentWriteKey == null) {
-                segmentWriteKey = requestFactory.fromUrl(woopraWriteKeyEndpoint).request().asString();
+                segmentWriteKey = requestFactory.fromUrl(segmentWriteKeyEndpoint).request().asString();
             }
             if (woopraDomain == null) {
                 woopraDomain = requestFactory.fromUrl(woopraDomainEndpoint).request().asString();
