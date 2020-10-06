@@ -218,6 +218,10 @@
           <name>native</name>
         </property>
       </activation>
+      <properties>
+        <quarkus.package.type>native</quarkus.package.type>
+        <quarkus.native.additional-build-args>-H:DynamicProxyConfigurationResources=dynamic-proxies.json,--enable-all-security-services</quarkus.native.additional-build-args>
+      </properties>
       <build>
         <plugins>
           <plugin>
@@ -229,12 +233,6 @@
                 <goals>
                   <goal>native-image</goal>
                 </goals>
-                <configuration>
-                  <additionalBuildArgs>
-                    <additionalBuildArg>-H:DynamicProxyConfigurationResources=dynamic-proxies.json</additionalBuildArg>
-                    <additionalBuildArg>--enable-all-security-services</additionalBuildArg>
-                  </additionalBuildArgs>
-                </configuration>
               </execution>
             </executions>
           </plugin>
@@ -259,9 +257,6 @@
           </plugin>
         </plugins>
       </build>
-      <properties>
-        <quarkus.package.type>native</quarkus.package.type>
-      </properties>
     </profile>
   </profiles>
 </project>
