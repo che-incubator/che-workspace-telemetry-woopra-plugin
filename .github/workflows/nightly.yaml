@@ -1,0 +1,28 @@
+name: woopra-plugin nightly build
+
+on: 
+  schedule:
+    - cron: '0 0 * * *' # run on the 0th hour at the 0th minute every day
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: |
+          docker build --build-arg GITHUB_USERNAME=${GITHUB_USERNAME} --build-arg GITHUB_TOKEN=${GITHUB_TOKEN} -t quay.io/${ORGANIZATION}/che-workspace-telemetry-woopra-plugin:${TAG} -f src/main/docker/Dockerfile.multi .
+          echo "::set-env name=IMAGE::quay.io/${ORGANIZATION}/che-workspace-telemetry-woopra-plugin:${TAG}"
+        env:
+          GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+          ORGANIZATION: eclipse
+          TAG: nightly
+      - name: Log into docker registry
+        run: docker login ${REGISTRY} -u ${USERNAME} -p ${PASSWORD}
+        env:
+          REGISTRY: quay.io
+          USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+          PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+      - name: Push image
+        run: docker push $IMAGE
