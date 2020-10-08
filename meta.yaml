@@ -12,17 +12,16 @@ spec:
     - name: CHE_WORKSPACE_TELEMETRY_BACKEND_PORT
       value: '4167'
   containers:
-  - name: che-workspace-telemetry-woopra-plugin
-    image: quay.io/openshiftio/che-workspace-telemetry-woopra-plugin:latest
-    env:
-      - name: CHE_API
-        value: $(CHE_API_INTERNAL)
-      - name: WOOPRA_DOMAIN
-        value: ''
-      - name: SEGMENT_WRITE_KEY
-        value: ''
-      - name: WOOPRA_DOMAIN_ENDPOINT
-        value: ''
-      - name: SEGMENT_WRITE_KEY_ENDPOINT
-        value: ''
-
+    - name: che-workspace-telemetry-woopra-plugin
+      image: quay.io/eclipse/che-workspace-telemetry-woopra-plugin:latest
+      env:
+        - name: CHE_API
+          value: $(CHE_API_INTERNAL)
+        - name: WOOPRA_DOMAIN
+          value: ''
+        - name: SEGMENT_WRITE_KEY
+          value: ''
+        - name: WOOPRA_DOMAIN_ENDPOINT
+          value: ''
+        - name: SEGMENT_WRITE_KEY_ENDPOINT
+          value: ''
