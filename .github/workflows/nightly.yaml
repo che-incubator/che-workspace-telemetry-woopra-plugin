@@ -14,7 +14,7 @@ jobs:
           docker build --build-arg GITHUB_USERNAME=${GITHUB_USERNAME} --build-arg GITHUB_TOKEN=${GITHUB_TOKEN} -t quay.io/${ORGANIZATION}/che-workspace-telemetry-woopra-plugin:${TAG} -f src/main/docker/Dockerfile.multi .
           echo "::set-env name=IMAGE::quay.io/${ORGANIZATION}/che-workspace-telemetry-woopra-plugin:${TAG}"
         env:
-          GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
+          GITHUB_USERNAME: ${{ secrets.GH_USERNAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
           ORGANIZATION: eclipse
           TAG: nightly
