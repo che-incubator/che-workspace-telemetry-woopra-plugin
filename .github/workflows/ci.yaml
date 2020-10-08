@@ -18,11 +18,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
           ORGANIZATION: eclipse
           TAG: latest
+      - name: Tag image with latest commit
+        run: |
+          docker tag $IMAGE quay.io/${ORGANIZATION}/che-workspace-telemetry-woopra-plugin:${GITHUB_SHA:0:7}
+          echo "::set-env name=IMAGE_SHA::quay.io/${ORGANIZATION}/che-workspace-telemetry-woopra-plugin:${GITHUB_SHA:0:7}"
+        env:
+          ORGANIZATION: eclipse
       - name: Log into docker registry
         run: docker login ${REGISTRY} -u ${USERNAME} -p ${PASSWORD}
         env:
           REGISTRY: quay.io
           USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
           PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
-      - name: Push image
+      - name: Push image latest
         run: docker push $IMAGE
+      - name: Push image sha
+        run: docker push $IMAGE_SHA
