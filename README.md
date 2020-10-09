@@ -12,7 +12,8 @@ A [personal access token](https://github.com/settings/tokens) with `read:package
 dependencies from GitHub.
 
 To compile a native image, you also need [GraalVM 19.2.1](https://www.graalvm.org/) and `native-image`
-installed.
+installed.  For now, this repository uses quarkus release `1.0.0.Final` and only works with GraalVM 19.2.1.  This will eventually
+be upgraded allowing for later versions of GraalVM.
 
 Add a repository entry in `$HOME/.m2/settings.xml`:
 
@@ -73,6 +74,70 @@ The `Dockerfile` needs two build arguments:
 Then pass in the build arguments:
 
 `docker build --build-arg GITHUB_USERNAME=<github username> --build-arg GITHUB_TOKEN=<personal access token> -f src/main/docker/Dockerfile.multi -t image-name:tag .`
+
+## Creating a Development Image and Testing on Che
+
+The Full flow to test a new version of this plugin on Eclipse Che is:
+
+- Build a new version of the image with any additional TLS certificates added to the trust store
+- Build a custom version of the [`che-plugin-registry`](https://github.com/eclipse/che-plugin-registry) referencing your development version of the image
+- Set the `spec.server.pluginRegistryImage` and `spec.server.pluginRegistryPullPolicy`  fields in the `cheCluster` CR.
+
+Eclipse Che by default secures the Che API with TLS certificates.  In order to build your own development image to test on Che,
+you need to add the TLS certificate of the Che API to your Java truststore, and you need to tell Quarkus where that trust store is.
+Since native compilation behaves differently than running the application on a JVM, you need to pass in the trust store at build time
+through the `quarkus.native.additional-build-args` property.  This repo has a Dockerfile that will build an image and set the trustStore
+at build-time.  The Dockerfile expects a modified trustStore at the root of this repository with the name `cacerts`.
+
+To get the eclipse che certificate:
+
+```shell
+openssl s_client -connect <eclipse che url>:443
+# Copy the certificate that is sent back and save it as che.crt
+keytool -import -alias development-che-cert -keystore $JAVA_HOME/lib/security/cacerts -file che.crt
+# Default keystore password is 'changeit'
+# cp $JAVA_HOME/lib/security/cacerts .
+```
+
+To build the image, add an additional property to `quarkus.native.additional-build-args` to `pom.xml`, adding the location of the trust store in the docker image (`/tmp/cacerts`):
+
+
+```xml
+        <properties>                                                                                                                                                                                                                          
+          <quarkus.package.type>native</quarkus.package.type>                                                                                                                                                                                 
+          <quarkus.native.additional-build-args>-J-Djavax.net.ssl.trustStore=/tmp/cacerts,-H:DynamicProxyConfigurationResources=dynamic-proxies.json,--enable-all-security-services</quarkus.native.additional-build-args>                                                              
+        </properties>     
+```
+ 
+ 
+Build the image using the development Dockerfile:
+
+```shell
+docker run --build-arg GITHUB_USERNAME <username to download packages from the GitHub registries> --build-arg GITHUB_TOKEN <personal access token> -f src/main/docker/Dockerfile.dev -t $YOUR_DOCKER_REGISTRY/$YOUR_ORG/che-workspace-telemetry-woopra-plugin .
+```
+
+Then clone the [`che-plugin-registry`](https://github.com/eclipse/che-plugin-registry) repository, and add the image you just built
+to the plugin registry:
+
+```shell
+mkdir -p v3/plugins/eclipse/che-workspace-telemetry-woopra-plugin
+cd v3/plugins/eclipse/che-workspace-telemetry-woopra-plugin
+mkdir -p 0.0.1/
+echo "0.0.1" > latest.txt
+# copy the meta yaml from this file to 0.0.1/ and change the image field to refernce your image
+./build.sh
+# re-tag and push the che-plugin-registry image
+```
+
+Then edit your `CheCluster`:
+
+```shell
+kubectl edit checluster eclipse-che -n eclipse-che
+set pluginRegistryImage to the development image your created and pluginRegistryPullPolicy to Always
+```
+
+Delete the plugin registry pod to cause the pod to restart.  When you check the 'Plugins' tab of the Che dashboard you should
+see the new plugin.  Enable the plugin in a workspace by setting the slider.
 
 ## Running Tests
 
