@@ -13,7 +13,7 @@ jobs:
         run: |
           docker build --build-arg GITHUB_USERNAME=${GH_USERNAME} --build-arg GITHUB_TOKEN=${GH_TOKEN} -t quay.io/${ORGANIZATION}/che-workspace-telemetry-woopra-plugin:${TAG} -f src/main/docker/Dockerfile.multi .
         env:
-          GH_USERNAME: ${{ secrets.GH_USERNAME  }}
+          GH_USERNAME: x-access-token
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ORGANIZATION: eclipse
           TAG: pr-check
