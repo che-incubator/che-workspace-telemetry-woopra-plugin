@@ -15,8 +15,6 @@ spec:
     - name: che-workspace-telemetry-woopra-plugin
       image: quay.io/eclipse/che-workspace-telemetry-woopra-plugin:latest
       env:
-        - name: CHE_API
-          value: $(CHE_API_INTERNAL)
         - name: WOOPRA_DOMAIN
           value: ''
         - name: SEGMENT_WRITE_KEY
