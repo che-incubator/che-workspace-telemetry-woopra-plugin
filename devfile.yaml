@@ -4,7 +4,7 @@ projects:
   - name: che-workspace-telemetry-woopra-plugin
     source:
       location: >-
-        https://github.com/redhat-developer/che-workspace-telemetry-woopra-plugin.git
+        https://github.com/che-incubator/che-workspace-telemetry-woopra-plugin.git
       type: git
       branch: master
 components:
@@ -32,14 +32,25 @@ components:
         name: JAVA_OPTS
       - value: $(JAVA_OPTS)
         name: MAVEN_OPTS
-      - value: ''
-        name: CHE_FABRIC8_ANALYTICS_SEGMENT_WRITE_KEY
-      - value: ''
-        name: CHE_FABRIC8_ANALYTICS_WOOPRA_DOMAIN
+      - name: WOOPRA_DOMAIN
+        value: ''
+      - name: WOOPRA_DOMAIN_ENDPOINT
+        value: ''
+      - name: SEGMENT_WRITE_KEY
+        value: ''
+      - name: SEGMENT_WRITE_KEY_ENDPOINT
+        value: ''
+      - name: GITHUB_USERNAME
+        value: ''
+      - name: GITHUB_TOKEN
+        value: ''
   - id: eclipse/che-theia/next
     memoryLimit: 1Gi
     type: cheEditor
     alias: theia-editor
+    env:
+      - name: CHE_WORKSPACE_TELEMETRY_BACKEND_PORT
+        value: '4168'
 apiVersion: 1.0.0
 commands:
   - name: BUILD woopra plugin
