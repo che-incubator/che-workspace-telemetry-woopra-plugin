@@ -1,9 +1,27 @@
-[![Master Build Status](https://ci.centos.org/buildStatus/icon?subject=master&job=devtools-che-workspace-telemetry-woopra-plugin-build-master/)](https://ci.centos.org/view/Devtools/job/devtools-che-workspace-telemetry-woopra-plugin-build-master/)
-[![Nightly Build Status](https://ci.centos.org/buildStatus/icon?subject=nightly&job=devtools-che-workspace-telemetry-woopra-plugin-che-nightly/)](https://ci.centos.org/view/Devtools/job/devtools-che-workspace-telemetry-woopra-plugin-che-nightly/)
-
-[![Contribute](https://camo.githubusercontent.com/7ca4f6be43fb5eb61a73ba6d40b3481d93ef5813/68747470733a2f2f6368652e6f70656e73686966742e696f2f666163746f72792f7265736f75726365732f666163746f72792d636f6e747269627574652e737667)](https://che.openshift.io/f?url=https://github.com/redhat-developer/che-workspace-telemetry-woopra-plugin)
+[![Contribute](https://www.eclipse.org/che/contribute.svg)](https://che.openshift.io/f?url=https://github.com/che-incubator/che-workspace-telemetry-woopra-plugin)
 
 # che-workspace-telemetry-woopra-plugin
+
+## Running the Devfile
+
+Copy and paste `devfile.yaml` into the devfile editor of your che instance, and fill in the `value` field for the environment variables:
+
+- `GITHUB_USERUNAME`: your github username
+- `GITHUB_TOKEN`: a github token with `read:packages` permissions
+
+Then, fill in the `value` field of EITHER: 
+
+- `WOOPRA_DOMAIN`: the woopra domain to connect to
+- `SEGMENT_WRITE_KEY`: the segment write key for the domain
+
+OR:
+
+- `WOOPRA_DOMAIN_ENDPOINT`: a URL that returns the woopra domain
+- `SEGMENT_WRITE_KEY_ENDPOINT`: a URL that returns the segment write key
+
+You can then run the build and run tasks in the Che editor.  If you want to run a maven command from the terminal,  be sure to add the `--settings settings.xml` option to the `mvn` invocation.  For example:
+
+`mvn --settings settings.xml quarkus:dev -Dquarkus.http.port=$CHE_WORKSPACE_TELEMETRY_BACKEND_PORT -Dquarkus.log.level=DEBUG`
 
 ## Prerequisites
 
@@ -165,6 +183,6 @@ In the root of this repository, run:
 docker run -w /root/app -v $(pwd):/root/app -v \
   /path/to/akamai-auth.conf:/root/.akamai-cli/.netstorage/auth \
   akamai/cli netstorage upload \
-  --directory rh-che/plugins/che-workspace-telemetry-woopra-backend/0.0.1 \
+  --directory che/plugins/eclipse/che-workspace-telemetry-woopra-plugin/0.0.1 \
   meta.yaml
 ```
