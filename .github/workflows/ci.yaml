@@ -26,6 +26,8 @@ jobs:
         run: echo "SHA_IMAGE=quay.io/${ORGANIZATION}/che-workspace-telemetry-woopra-plugin:${GITHUB_SHA:0:7}" >> $GITHUB_ENV
         env:
           ORGANIZATION: eclipse
+      - name: tag SHA_IMAGE
+        run: docker tag $LATEST_IMAGE $SHA_IMAGE
       - name: Log into docker registry
         run: docker login ${REGISTRY} -u ${USERNAME} -p ${PASSWORD}
         env:
