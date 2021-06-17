@@ -44,7 +44,7 @@ components:
         value: ''
       - name: GITHUB_TOKEN
         value: ''
-  - id: eclipse/che-theia/next
+  - id: eclipse/che-theia/latest
     memoryLimit: 1Gi
     type: cheEditor
     alias: theia-editor
