@@ -2,6 +2,8 @@
 
 # che-workspace-telemetry-woopra-plugin
 
+> :warning: The plugin is deprecated in favour of https://github.com/che-incubator/devworkspace-telemetry-woopra-plugin
+
 ## Running the Devfile
 
 Copy and paste `devfile.yaml` into the devfile editor of your che instance, and fill in the `value` field for the environment variables:
